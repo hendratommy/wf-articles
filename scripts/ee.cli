@@ -1,0 +1,2 @@
+/subsystem=ee:write-attribute(name="jboss-descriptor-property-replacement", value=true)
+/subsystem=ee:write-attribute(name="spec-descriptor-property-replacement", value=true)

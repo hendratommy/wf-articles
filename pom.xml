@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.training.mp</groupId>
+	<artifactId>wf-articles</artifactId>
+	<version>1.0.0</version>
+	<packaging>war</packaging>
+
+	<properties>
+		<!-- project template -->
+		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<wildfly.version>21.0.2.Final</wildfly.version>
+		<failOnMissingWebXml>false</failOnMissingWebXml>
+		<microprofile.version>3.3</microprofile.version>
+		<jakarta-platform.version>8.0.0</jakarta-platform.version>
+
+		<!-- user properties -->
+		
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.wildfly.bom</groupId>
+				<artifactId>wildfly-jakartaee8-with-tools</artifactId>
+				<version>${wildfly.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.wildfly.bom</groupId>
+				<artifactId>wildfly-microprofile</artifactId>
+				<version>${wildfly.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.microprofile</groupId>
+			<artifactId>microprofile</artifactId>
+			<version>${microprofile.version}</version>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.spec.javax.ws.rs</groupId>
+			<artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+			<version>1.0.1.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-web-api</artifactId>
+			<version>${jakarta-platform.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- user dependencies -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>wildfly</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-jar-maven-plugin</artifactId>
+						<version>2.0.2.Final</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>package</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<plugin-options>
+								<jboss-fork-embedded>true</jboss-fork-embedded>
+							</plugin-options>
+							<feature-packs>
+								<feature-pack>
+									<location>wildfly@maven(org.jboss.universe:community-universe)#${wildfly.version}</location>
+								</feature-pack>
+								<feature-pack>
+		                            <groupId>org.wildfly</groupId>
+		                            <artifactId>wildfly-datasources-galleon-pack</artifactId>
+		                            <version>1.1.0.Final</version>
+		                        </feature-pack>
+							</feature-packs>
+							<layers>
+								<layer>microprofile-platform</layer>
+								<layer>cdi</layer>
+								<layer>logging</layer>
+								<layer>jaxrs</layer>
+								<layer>ee</layer>
+								
+								<layer>jpa</layer>
+								<layer>postgresql-driver</layer>
+								<layer>postgresql-datasource</layer>
+							</layers>
+							<cli-sessions>
+								<cli-session>
+									<scriptFiles>
+										<scriptFile>./scripts/ee.cli</scriptFile>
+									</scriptFiles>
+								</cli-session>
+								<cli-session>
+									<resolveExpressions>false</resolveExpressions>
+									<scriptFiles>
+										<scriptFile>./scripts/logging.cli</scriptFile>
+									</scriptFiles>
+								</cli-session>
+							</cli-sessions>
+							<jvmArguments>
+								<jvmArgument>-agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n</jvmArgument>
+							</jvmArguments>
+							<arguments>--properties=./config/dev.properties</arguments>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<repositories>
+				<repository>
+					<id>jboss-public-repository</id>
+					<name>JBoss Public Maven Repository Group</name>
+					<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+				</repository>
+				<repository>
+					<id>Red Hat GA</id>
+					<name>Red Hat GA</name>
+					<url>https://maven.repository.redhat.com/ga/</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+</project>

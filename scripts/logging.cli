@@ -1,0 +1,7 @@
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=INFO)
+/subsystem=logging/logger=com.training.mp:add(level=${logging.level, env.LOGGING_LEVEL:INFO})
+
+# if (outcome == json) of /system-property=logging.format:add(value=${logging.format:console})
+#	/subsystem=logging/json-formatter=json-formatter:add(exception-output-type=formatted, pretty-print=false, meta-data={version="1"})
+#	/subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=json-formatter)
+# end-if
